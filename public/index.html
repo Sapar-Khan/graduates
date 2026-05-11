@@ -406,17 +406,31 @@
             const musicIcon = document.getElementById('musicIcon');
             let isPlaying = false;
 
+            function playMusic() {
+                if (!isPlaying) {
+                    music.play().then(() => {
+                        isPlaying = true;
+                        musicIcon.textContent = 'volume_up';
+                        musicBtn.classList.add('music-playing');
+                    }).catch(e => {
+                        console.log("Автозапуск заблокирован браузером. Ожидание взаимодействия.");
+                    });
+                }
+            }
+
+            function pauseMusic() {
+                music.pause();
+                isPlaying = false;
+                musicIcon.textContent = 'volume_off';
+                musicBtn.classList.remove('music-playing');
+            }
+
             function toggleMusic() {
                 if (isPlaying) {
-                    music.pause();
-                    musicIcon.textContent = 'volume_off';
-                    musicBtn.classList.remove('music-playing');
+                    pauseMusic();
                 } else {
-                    music.play().catch(e => console.log("Браузер ожидает взаимодействия для запуска аудио"));
-                    musicIcon.textContent = 'volume_up';
-                    musicBtn.classList.add('music-playing');
+                    playMusic();
                 }
-                isPlaying = !isPlaying;
             }
 
             musicBtn.addEventListener('click', (e) => {
@@ -424,13 +438,22 @@
                 toggleMusic();
             });
 
-            // Автозапуск при первом клике на страницу
-            document.addEventListener('click', function autoPlay() {
+            // Попытка автозапуска сразу
+            playMusic();
+
+            // Автозапуск при ЛЮБОМ первом взаимодействии со страницей (клик, скролл, касание)
+            const enableAudio = () => {
                 if (!isPlaying) {
-                    toggleMusic();
+                    playMusic();
                 }
-                document.removeEventListener('click', autoPlay);
-            }, { once: true });
+                ['click', 'touchstart', 'scroll', 'mousedown'].forEach(event => {
+                    document.removeEventListener(event, enableAudio);
+                });
+            };
+
+            ['click', 'touchstart', 'scroll', 'mousedown'].forEach(event => {
+                document.addEventListener(event, enableAudio, { once: true });
+            });
         });
     </script>
 </body>
