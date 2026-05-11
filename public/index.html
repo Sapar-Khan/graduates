@@ -66,6 +66,36 @@
             },
         }
     </script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1TXUB572Elf2WTm-D21VFYFW_aKG-my4",
+            authDomain: "graduates-9c546.firebaseapp.com",
+            databaseURL: "https://graduates-9c546-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "graduates-9c546",
+            storageBucket: "graduates-9c546.firebasestorage.app",
+            messagingSenderId: "720199050917",
+            appId: "1:720199050917:web:08121f3f9a0841b186cf4c"
+        };
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+
+            // Сохраняем функции глобально, чтобы форма могла их использовать
+            window.firebaseApp = { db, collection, addDoc, serverTimestamp };
+
+            // Анонимная авторизация для безопасной записи
+            signInAnonymously(auth).catch(console.error);
+        } catch (error) {
+            console.error("Firebase іске қосу қатесі:", error);
+        }
+    </script>
 
     <!-- Пользовательские стили -->
     <style>
@@ -175,6 +205,74 @@
         .music-playing {
             animation: music-pulse 2s infinite ease-in-out;
         }
+
+        /* Стили для формы RSVP */
+        .golden-mandala {
+            /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-width='1.5'%3E%3Ccircle cx='100' cy='100' r='90'/%3E%3Ccircle cx='100' cy='100' r='80' stroke-dasharray='4 4'/%3E%3Ccircle cx='100' cy='100' r='60'/%3E%3Cpath d='M100 10 Q120 50 190 100 Q120 150 100 190 Q80 150 10 100 Q80 50 100 10 Z'/%3E%3Cpath d='M35 35 L165 165 M35 165 L165 35 M100 10 L100 190 M10 100 L190 100' stroke-width='0.5'/%3E%3Ccircle cx='100' cy='100' r='30' stroke-dasharray='2 6' stroke-width='3'/%3E%3C/g%3E%3C/svg%3E"); */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            z-index: 0;
+            background: #D1C4B9;
+
+        }
+
+        .rsvp-input {
+            border: 1px solid #000;
+            border-radius: 9999px;
+            padding: 16px 24px;
+            width: 100%;
+            font-family: 'Playfair Display', serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            background-color: transparent;
+            outline: none;
+        }
+
+        .rsvp-input:focus {
+            border-color: #6B2323;
+            box-shadow: 0 0 0 1px #6B2323;
+        }
+
+        .rsvp-radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            font-family: 'Playfair Display', serif;
+            color: #000;
+        }
+
+        .rsvp-radio-group input[type="radio"] {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            margin-right: 14px;
+            position: relative;
+            outline: none;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .rsvp-radio-group input[type="radio"]:checked::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #000;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 
@@ -182,7 +280,7 @@
 
     <!-- Аудио элемент -->
     <audio id="bgMusic" loop preload="auto">
-        <source src="an_1.mp3" type="audio/mpeg">
+        <source src="20_2.mp3" type="audio/mpeg">
         Ваш браузер не поддерживает аудио.
     </audio>
 
@@ -228,7 +326,7 @@
         </div>
 
         <!-- Calendar Section -->
-        <section class="py-16 px-margin-mobile relative overflow-hidden">
+        <section class="py-8 px-margin-mobile relative overflow-hidden">
             <div class="circle-ornament -right-20 top-0 scale-75 opacity-10"></div>
             <div class="max-w-md mx-auto text-center fade-in-section">
                 <h2 class="script-title text-4xl mb-6">Кездесу кеші:</h2>
@@ -293,7 +391,7 @@
         </div>
 
         <!-- Address Section -->
-        <section class="py-16 px-margin-mobile relative overflow-hidden bg-surface/50">
+        <section class="py-8 px-margin-mobile relative overflow-hidden bg-surface/50">
             <div class="max-w-md mx-auto text-center fade-in-section">
                 <h2 class="script-title text-4xl mb-6">Өтетін орны:</h2>
                 <div class="flex flex-col items-center gap-4">
@@ -301,8 +399,8 @@
                         <i class="material-icons text-primary" style="font-size: 36px;">location_on</i>
                     </div>
                     <div class="text-on-background">
-                        <h3 class="font-headline-lg text-2xl mb-1">"Golden Rouse" мейрамханасы</h3>
-                        <p class="font-body-md opacity-70 italic">Жетісай қаласы, Тәуелсіздік даңғылы, 12</p>
+                        <h3 class="font-headline-lg text-2xl mb-1">"Golden Rose" мейрамханасы</h3>
+                        <p class="font-body-md opacity-70 italic">Жетісай қаласы, С. Қожанов көшесі</p>
                     </div>
                 </div>
             </div>
@@ -316,15 +414,16 @@
         </div>
 
         <!-- Venue/Organizers Section -->
-        <section class="py-16 bg-background relative overflow-hidden">
+        <section class="py-8 bg-background relative overflow-hidden">
             <div class="px-margin-mobile text-center fade-in-section">
                 <h2 class="script-title text-4xl mb-4">Ұйымдастырушылар</h2>
                 <p class="text-on-background font-body-lg">Б. Майлин атындағы №21 мектептің 2006 жылғы түлектері</p>
             </div>
         </section>
 
+
         <!-- Program Section (Vertical Timeline) -->
-        <section class="py-16 px-margin-mobile relative bg-white">
+        <section class="py-8 px-margin-mobile relative bg-white">
             <div class="circle-ornament -left-20 bottom-0 scale-75 opacity-10"></div>
             <div class="max-w-md mx-auto fade-in-section">
                 <h2 class="script-title text-4xl text-center mb-10">Кеш бағдарламасы</h2>
@@ -355,8 +454,73 @@
             <div class="w-16 h-px bg-outline/40"></div>
         </div>
 
+        <section class="py-8 px-margin-mobile relative overflow-hidden">
+            <div class="max-w-md mx-auto text-center relative z-10 fade-in-section">
+                <!-- Таймер -->
+                <div class="mb-12">
+                    <h2 class="script-title text-4xl mb-6">Кездесу кешіне дейін:</h2>
+                    <div class="flex justify-center gap-4 text-4xl font-bold font-yeseva mb-2 tracking-widest text-black"
+                        id="countdown">
+                        <span>00</span> : <span>00</span> : <span>00</span> : <span>00</span>
+                    </div>
+                    <div class="grid grid-cols-4 text-[16px] font-script tracking-widest text-black px-2">
+                        <span>күн</span><span>сағат</span><span>минут</span><span>секунд</span>
+                    </div>
+                </div>
+                <!-- Разделитель -->
+                <div class="flex items-center justify-center py-4 bg-background fade-in-section">
+                    <div class="w-16 h-px bg-outline/40"></div>
+                    <div class="mx-4 w-1.5 h-1.5 rounded-full bg-secondary/60"></div>
+                    <div class="w-16 h-px bg-outline/40"></div>
+                </div>
+
+                <!-- Форма подтверждения -->
+                <div class="pt-4">
+                    <h2 class="script-title text-3xl mb-6">Тойға
+                        келетініңізді<br>растауыңызды сұраймыз</h2>
+
+                    <form id="rsvpForm" class="text-left">
+                        <div class="mb-8">
+                            <label
+                                class="block text-[12px] font-script font-bold uppercase mb-4 leading-relaxed text-black">
+                                Аты-жөніңіз (Жұбыңызбен келетін болсаңыз, есімдеріңізді бірге жазуыңызды өтінеміз)
+                            </label>
+                            <input type="text" id="guestName" placeholder="ЕСІМІҢІЗ" class="rsvp-input" required>
+                        </div>
+
+                        <div class="rsvp-radio-group mb-8">
+                            <label><input type="radio" name="attendance" value="келемін" checked> Келемін</label>
+                            <label><input type="radio" name="attendance" value="жұбыммен келемін"> Жұбыммен
+                                келемін</label>
+                            <label><input type="radio" name="attendance" value="қатыса алмаймын"> Өкінішке орай, қатыса
+                                алмаймын</label>
+                        </div>
+
+                        <div class="mb-10 text-left">
+                            <label class="block text-[12px] font-script font-bold uppercase mb-4 text-black">Тойға неше
+                                адам келесіздер</label>
+                            <div class="flex items-center justify-center gap-6">
+                                <button type="button" onclick="changeCount(-1)"
+                                    class="text-2xl font-light hover:opacity-50"> — </button>
+                                <span id="peopleCount"
+                                    class="text-2xl font-yeseva w-20 h-14 border border-black rounded-[20px] flex items-center justify-center bg-transparent text-black">0</span>
+                                <button type="button" onclick="changeCount(1)"
+                                    class="text-2xl font-light hover:opacity-50"> + </button>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-black text-white py-4 rounded-xl font-yeseva tracking-widest text-lg hover:bg-neutral-800 transition-colors">ЖІБЕРУ</button>
+                    </form>
+                    <div id="successMessage"
+                        class="hidden mt-6 p-4 bg-green-50 text-green-700 rounded-xl font-bold text-center border border-green-200">
+                        Рахмет! Жауабыңыз қабылданды.</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Memories -->
-        <section class="py-16 bg-surface overflow-hidden">
+        <section class="py-8 bg-surface overflow-hidden">
             <div class="px-margin-mobile text-center mb-10 fade-in-section">
                 <h2 class="script-title text-4xl mb-2">Жылы естеліктер</h2>
                 <p class="text-on-background text-sm opacity-80">Әрбір суретте бір хикая бар.</p>
@@ -366,7 +530,7 @@
                     <img class="w-full aspect-square object-cover mb-4"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuACkQfQAk_1oO_QrLFGOW8iW-6IFLBBbR1rMIYzA7odKAtoWWeXfS27VuEqCvFaSKPI8PF5n6UgPdogyxXRi9vS2yy10BJ8Gl0_dqwydi1u5IgOhnPQG5cMDSnSd8-JIuG6HG1vC6xQxDCVI_v2XhfPvwgzi2Q_qvuhmHjeK9L14b5dw28goshLT1avO20smjpgjvdHjFK5loumzu3405bNRwQeGCwLcs9aK0WTooxLr0kp-GS3atGxrgfc6LpHhwyOZTJ8ALRmuEE"
                         alt="Memory 2004" />
-                    <p class="script-title text-xl text-center">Соңғы қоңырау, 2004</p>
+                    <p class="script-title text-xl text-center">Соңғы қоңырау, 2006</p>
                 </div>
             </div>
         </section>
@@ -382,8 +546,75 @@
 
     <!-- Скрипты -->
     <script>
+        let guestCount = 0;
+        function changeCount(delta) {
+            guestCount = Math.max(0, guestCount + delta);
+            document.getElementById('peopleCount').textContent = guestCount;
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
-            // Анимация при скролле
+            // Обработка формы
+            const form = document.getElementById('rsvpForm');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('guestName').value;
+                const attendance = form.querySelector('input[name="attendance"]:checked').value;
+
+                // Проверка инициализации Firebase
+                if (!window.firebaseApp) {
+                    console.warn("Дерекқорға қосылусыз форманы симуляциялау (Оффлайн режим).");
+                    form.classList.add('hidden');
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    return;
+                }
+
+                const { db, collection, addDoc, serverTimestamp } = window.firebaseApp;
+
+                try {
+                    // Отправляем данные в вашу базу данных, в коллекцию rsvp_responses
+                    await addDoc(collection(db, 'rsvp_responses'), {
+                        name: name,
+                        attendance: attendance,
+                        guests: guestCount,
+                        timestamp: serverTimestamp()
+                    });
+
+                    form.classList.add('hidden');
+                    document.getElementById('successMessage').classList.remove('hidden');
+                } catch (err) {
+                    console.error("Ошибка сохранения:", err);
+                    alert("Мәліметтерді сақтау кезінде қате пайда болды. Интернет байланысын тексеріп, қайта көріңіз.");
+                }
+            });
+            // Таймер обратного отсчета (до 6 июня 2026, 18:00)
+            const targetDate = new Date('June 6, 2026 18:00:00').getTime();
+            const countdownEl = document.getElementById('countdown');
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff < 0) {
+                    countdownEl.innerHTML = "00 : 00 : 00 : 00";
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                const spans = countdownEl.querySelectorAll('span');
+                spans[0].textContent = String(days).padStart(2, '0');
+                spans[1].textContent = String(hours).padStart(2, '0');
+                spans[2].textContent = String(minutes).padStart(2, '0');
+                spans[3].textContent = String(seconds).padStart(2, '0');
+            }
+            setInterval(updateTimer, 1000);
+            updateTimer();
+
+            // Анимация скролла
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -391,14 +622,9 @@
                         observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15
-            });
+            }, { threshold: 0.15 });
 
-            const fadeElements = document.querySelectorAll('.fade-in-section');
-            fadeElements.forEach((el) => observer.observe(el));
+            document.querySelectorAll('.fade-in-section').forEach((el) => observer.observe(el));
 
             // Логика музыки
             const music = document.getElementById('bgMusic');
@@ -406,54 +632,21 @@
             const musicIcon = document.getElementById('musicIcon');
             let isPlaying = false;
 
-            function playMusic() {
-                if (!isPlaying) {
-                    music.play().then(() => {
-                        isPlaying = true;
-                        musicIcon.textContent = 'volume_up';
-                        musicBtn.classList.add('music-playing');
-                    }).catch(e => {
-                        console.log("Автозапуск заблокирован браузером. Ожидание взаимодействия.");
-                    });
-                }
-            }
-
-            function pauseMusic() {
-                music.pause();
-                isPlaying = false;
-                musicIcon.textContent = 'volume_off';
-                musicBtn.classList.remove('music-playing');
-            }
-
             function toggleMusic() {
                 if (isPlaying) {
-                    pauseMusic();
+                    music.pause();
+                    musicIcon.textContent = 'volume_off';
+                    musicBtn.classList.remove('music-playing');
                 } else {
-                    playMusic();
+                    music.play().catch(() => { });
+                    musicIcon.textContent = 'volume_up';
+                    musicBtn.classList.add('music-playing');
                 }
+                isPlaying = !isPlaying;
             }
 
-            musicBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleMusic();
-            });
-
-            // Попытка автозапуска сразу
-            playMusic();
-
-            // Автозапуск при ЛЮБОМ первом взаимодействии со страницей (клик, скролл, касание)
-            const enableAudio = () => {
-                if (!isPlaying) {
-                    playMusic();
-                }
-                ['click', 'touchstart', 'scroll', 'mousedown'].forEach(event => {
-                    document.removeEventListener(event, enableAudio);
-                });
-            };
-
-            ['click', 'touchstart', 'scroll', 'mousedown'].forEach(event => {
-                document.addEventListener(event, enableAudio, { once: true });
-            });
+            musicBtn.addEventListener('click', toggleMusic);
+            document.addEventListener('click', () => { if (!isPlaying) toggleMusic(); }, { once: true });
         });
     </script>
 </body>
