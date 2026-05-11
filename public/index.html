@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html class="light" lang="kk">
 
-
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -11,8 +10,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Montserrat:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
+    <!-- Используем стандартные Material Icons для лучшей совместимости -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Подключение Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -157,10 +156,42 @@
             opacity: 1;
             transform: none;
         }
+
+        /* Анимация пульсации для музыкальной кнопки */
+        @keyframes music-pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .music-playing {
+            animation: music-pulse 2s infinite ease-in-out;
+        }
     </style>
 </head>
 
 <body class="bg-background text-on-background font-body-md selection:bg-secondary-container selection:text-primary">
+
+    <!-- Аудио элемент -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="an.mp3" type="audio/mpeg">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
+    <!-- Кнопка управления музыкой -->
+    <button id="musicToggle"
+        class="fixed bottom-6 right-6 z-50 w-12 h-12 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95">
+        <i class="material-icons" id="musicIcon">volume_off</i>
+    </button>
+
     <main>
         <!-- Hero Section -->
         <section class="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-surface">
@@ -214,7 +245,7 @@
                         <div class="py-2">4</div>
                         <div class="py-2">5</div>
                         <div class="py-2 font-bold calendar-day-active text-primary">
-                            6<span class="material-symbols-outlined star-highlight">star</span>
+                            6<i class="material-icons star-highlight" style="font-size: 42px; opacity: 0.25;">star</i>
                         </div>
                         <div class="py-2">7</div>
                         <div class="py-2">8</div>
@@ -258,7 +289,30 @@
             <div class="w-16 h-px bg-outline/40"></div>
         </div>
 
-        <!-- Venue Section -->
+        <!-- Address Section -->
+        <section class="py-16 px-margin-mobile relative overflow-hidden bg-surface/50">
+            <div class="max-w-md mx-auto text-center fade-in-section">
+                <h2 class="script-title text-4xl mb-6">Өтетін орны:</h2>
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <i class="material-icons text-primary" style="font-size: 36px;">location_on</i>
+                    </div>
+                    <div class="text-on-background">
+                        <h3 class="font-headline-lg text-2xl mb-1">"Golden Rouse" мейрамханасы</h3>
+                        <p class="font-body-md opacity-70 italic">Жетісай қаласы, Тәуелсіздік даңғылы, 12</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Разделитель -->
+        <div class="flex items-center justify-center py-4 bg-background fade-in-section">
+            <div class="w-16 h-px bg-outline/40"></div>
+            <div class="mx-4 w-1.5 h-1.5 rounded-full bg-secondary/60"></div>
+            <div class="w-16 h-px bg-outline/40"></div>
+        </div>
+
+        <!-- Venue/Organizers Section -->
         <section class="py-16 bg-background relative overflow-hidden">
             <div class="px-margin-mobile text-center fade-in-section">
                 <h2 class="script-title text-4xl mb-4">Ұйымдастырушылар</h2>
@@ -323,25 +377,57 @@
             мектептің 2006 жылғы түлектері</div>
     </footer>
 
-    <!-- Скрипт для активации анимации при скролле -->
+    <!-- Скрипты -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Анимация при скролле
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
-                        // Анимация сработает только один раз при первом появлении блока
                         observer.unobserve(entry.target);
                     }
                 });
             }, {
                 root: null,
                 rootMargin: '0px',
-                threshold: 0.15 // Блок появится, когда 15% его высоты будет на экране
+                threshold: 0.15
             });
 
             const fadeElements = document.querySelectorAll('.fade-in-section');
             fadeElements.forEach((el) => observer.observe(el));
+
+            // Логика музыки
+            const music = document.getElementById('bgMusic');
+            const musicBtn = document.getElementById('musicToggle');
+            const musicIcon = document.getElementById('musicIcon');
+            let isPlaying = false;
+
+            function toggleMusic() {
+                if (isPlaying) {
+                    music.pause();
+                    musicIcon.textContent = 'volume_off';
+                    musicBtn.classList.remove('music-playing');
+                } else {
+                    music.play().catch(e => console.log("Браузер ожидает взаимодействия для запуска аудио"));
+                    musicIcon.textContent = 'volume_up';
+                    musicBtn.classList.add('music-playing');
+                }
+                isPlaying = !isPlaying;
+            }
+
+            musicBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMusic();
+            });
+
+            // Автозапуск при первом клике на страницу
+            document.addEventListener('click', function autoPlay() {
+                if (!isPlaying) {
+                    toggleMusic();
+                }
+                document.removeEventListener('click', autoPlay);
+            }, { once: true });
         });
     </script>
 </body>
